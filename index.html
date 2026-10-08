@@ -95,10 +95,6 @@
     .links li { grid-template-columns: 1fr; gap: 0; }
   }
 
-  /* One deliberate moment: activated cells light up on load */
-  .act { opacity: 0; transition: opacity 1.4s ease; }
-  .lit .act { opacity: 1; }
-  @media (prefers-reduced-motion: reduce) { .act { transition: none; } }
 </style>
 </head>
 <body>
@@ -132,9 +128,10 @@
       </div>
     </div>
 
-    <figure class="field" aria-label="Illustration: a field of cell nuclei, a few highlighted as activated stem cells">
-      <img src="microscopy.jpg" alt="Neural stem cells in the subventricular zone" style="width:100%;height:100%;object-fit:cover;display:block">
-      <figcaption>Quiescent nuclei, <b>activated</b> stem cells</figcaption>
+    <figure class="field">
+      <!-- Microscopy image: upload a file named microscopy.jpg next to this index.html -->
+      <img src="microscopy.jpg" alt="Microscopy image of neural stem cells in the subventricular zone"
+           style="width:100%;height:100%;object-fit:cover;display:block">
     </figure>
   </div>
 
@@ -214,55 +211,6 @@
 <script>
   document.getElementById('yr').textContent = new Date().getFullYear();
 
-  // Draw a "stained" field of nuclei. Seeded so it looks the same on every visit.
-  (function () {
-    var svg = document.getElementById('cells');
-    var ns = 'http://www.w3.org/2000/svg';
-    var seed = 25;
-    function rnd() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
-
-    svg.innerHTML =
-      '<defs>' +
-        '<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2"/></filter>' +
-        '<radialGradient id="nuc"><stop offset="0" stop-color="#7C93FF"/><stop offset="1" stop-color="#2B3FA8" stop-opacity=".55"/></radialGradient>' +
-        '<radialGradient id="gfp"><stop offset="0" stop-color="#B8FFCB"/><stop offset=".5" stop-color="#3BD16F"/><stop offset="1" stop-color="#16803C" stop-opacity="0"/></radialGradient>' +
-      '</defs>';
-
-    var placed = [];
-    var tries = 0;
-    while (placed.length < 90 && tries < 4000) {
-      tries++;
-      var x = 20 + rnd() * 360, y = 20 + rnd() * 360;
-      var r = 7 + rnd() * 6;
-      var ok = placed.every(function (p) { return Math.hypot(p.x - x, p.y - y) > p.r + r + 3; });
-      if (!ok) continue;
-      placed.push({ x: x, y: y, r: r });
-      var e = document.createElementNS(ns, 'ellipse');
-      e.setAttribute('cx', x); e.setAttribute('cy', y);
-      e.setAttribute('rx', r); e.setAttribute('ry', r * (0.7 + rnd() * 0.25));
-      e.setAttribute('transform', 'rotate(' + Math.round(rnd() * 180) + ' ' + x + ' ' + y + ')');
-      e.setAttribute('fill', 'url(#nuc)');
-      e.setAttribute('filter', 'url(#glow)');
-      svg.appendChild(e);
-    }
-
-    // A handful of activated stem cells
-    var g = document.createElementNS(ns, 'g');
-    g.setAttribute('class', 'act');
-    [3, 17, 29, 44, 58, 71].forEach(function (i) {
-      var p = placed[i % placed.length];
-      var c = document.createElementNS(ns, 'circle');
-      c.setAttribute('cx', p.x); c.setAttribute('cy', p.y);
-      c.setAttribute('r', p.r * 2.1);
-      c.setAttribute('fill', 'url(#gfp)');
-      g.appendChild(c);
-    });
-    svg.appendChild(g);
-
-    requestAnimationFrame(function () {
-      setTimeout(function () { document.querySelector('.field').classList.add('lit'); }, 300);
-    });
-  })();
 </script>
 </body>
 </html>
